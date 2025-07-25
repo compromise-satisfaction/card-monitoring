@@ -6,7 +6,7 @@ var Monitoring_Scene = function(){
   var B_Size = width/5;  
   
   var BGM2 = document.createElement("audio");
-  BGM2.src = "https://cdn.glitch.global/8349cd6e-3b5e-41a3-a9aa-be1f6a655399/歌.m4a";
+  BGM2.src = "https://raw.githubusercontent.com/compromise-satisfaction/Saved/master/音/BGM/VS 天上院明日香.wav";
   BGM2.volume = 0.1;
   scene.removeChild(Black);
   
