@@ -21,6 +21,7 @@ var Monitoring_Scene = function(){
     BGM2.src = BGM2.N + ".m4a";
     BGM2.currentTime = 0;
     BGM2.play();
+    return;
   });
 
   var B_Black = Create_Image(0,0,width,height,"https://raw.githubusercontent.com/compromise-satisfaction/Saved/master/画像/背景/半透明(黒).png");
