@@ -275,7 +275,6 @@ var Monitoring_Scene = function(){
       };
       console.log(Send_Text);
       BGM2.pause();
-      BGM2.currentTime = 0;
       Text_Area._element.value = Send_Text;
       for(var I = 0; I < Z_TEXT.length; I++) scene.removeChild(Z_TEXT[I]);
       scene.addChild(B_Black);
