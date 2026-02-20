@@ -8,13 +8,16 @@ var Monitoring_Scene = function(){
   var BGMs = 3;
 
   var BGM2 = document.createElement("audio");
-  BGM2.N = 1;
-  BGM2.src = "1.m4a";
   scene.removeChild(Black);
+  BGM2.N = window.localStorage.getItem("曲");
+  window.localStorage.setItem("曲",BGM2.N+1);
+  if(!BGM2.N) BGM2.N = 1;
+  BGM2.src = BGM2.N + ".m4a";
 
   BGM2.addEventListener("ended",function(e){
     if(BGM2.N==BGMs) BGM2.N = 0;
     BGM2.N++;
+    window.localStorage.setItem("曲",BGM2.N);
     BGM2.src = BGM2.N + ".m4a";
     BGM2.currentTime = 0;
     BGM2.play();
