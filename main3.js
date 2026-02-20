@@ -49,21 +49,26 @@ function Game_load(width,height){
         Buttons[I]._element.onclick = function(e){
           switch(this.value){
             case "+":
-              BGMs[this.N].volume = BGMs[this.N].volume + 0.1;
-              if(BGMs[this.N].volume > 1) BGMs[this.N].volume = 1;
+              Temp = BGMs[this.N].volume + 0.1;
+              if(Temp > 1) BGMs[this.N].volume = 1;
+              else BGMs[this.N].volume = Temp;
               break;
             case "-":
-              BGMs[this.N].volume = BGMs[this.N].volume - 0.1;
-              if(BGMs[this.N].volume < 0) BGMs[this.N].volume = 0;
+              Temp = BGMs[this.N].volume - 0.1;
+              if(Temp < 0) BGMs[this.N].volume = 0;
+              else BGMs[this.N].volume = Temp;
               break;
             case "再生":
+              BGMs[this.N].play();
               this.value = "停止";
               window.localStorage.setItem("曲",this.N);
               break;
             case "停止":
+              BGMs[this.N].pause();
               this.value = "再生";
               break;
           };
+          console.log(BGMs[this.N].volume);
           return;
         };
       };
