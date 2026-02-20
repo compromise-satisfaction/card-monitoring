@@ -61,14 +61,13 @@ function Game_load(width,height){
             case "再生":
               BGMs[this.N].play();
               this.value = "停止";
-              window.localStorage.setItem("曲",this.N);
+              window.localStorage.setItem("曲",this.N-1);
               break;
             case "停止":
               BGMs[this.N].pause();
               this.value = "再生";
               break;
           };
-          console.log(BGMs[this.N].volume);
           return;
         };
       };
