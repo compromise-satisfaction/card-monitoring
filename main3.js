@@ -27,7 +27,7 @@ function Game_load(width,height){
       function BGM_Button_Set(N){
         BGM_make(N);
         Button_Set(0,N,"-");
-        Button_Set(1,N,"停止");
+        Button_Set(1,N,"再生");
         Button_Set(2,N,"+");
         return;
       };
