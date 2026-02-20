@@ -4,26 +4,7 @@ function Game_load(width,height){
   game = new Game(width,height);
   game.fps = 60;
   game.onload = function(){
-    switch(Glitch){
-      case "ショート":
-      case "擬似天変地異":
-      case "居合いドロー":
-        Play_Scene_Change(Start_YYY);
-        break;
-      case "監視生成":
-        Play_Scene_Change(Monitoring_Scene);
-        break;
-      case "ゲーム特化":
-        Big_Data.Talk_Data = Talk_Datas.ゲーム開始;
-        Play_Scene_Change(Talk_Scene);
-        break;
-      case "キャンバステスト":
-        game.replaceScene(Canvas());
-        break;
-      case "ムービーメーカー":
-        Play_Scene_Change(Start_Scene);
-        break;
-    };
+    Play_Scene_Change(Monitoring_Scene);
     return;
   };
   game.start();
@@ -97,25 +78,24 @@ var Loading_Scene = function(){
   var scene = Play_Scene_Set("ローディング画面");
   if(!New_Scene) return scene;
   var Background = new Entity();
-  
+
   Background._element = document.createElement("img");
   Background._element.src = "https://raw.githubusercontent.com/compromise-satisfaction/novel_game/gh-pages/画像/半透明(黒).png";
   Background.width = width;
   Background.height = height;
-  var Loading = new Entity();
-  Loading._element = document.createElement("img");
-  Loading._element.src = Assets + "読み込み中.png";
+  var Loading = new Label();
+  Loading.text = "読み込み中";
+  Loading.y = (height - width/Loading.text.length) / 2;
+  Loading.font = width/Loading.text.length + "px 'Arial'";
   Loading.width = width;
-  Loading.height = width/5;
-  Loading.y = height/2 - Loading.height/2;
+  Loading._style.color = "#7f7fff";
   scene.addChild(Background);
   scene.addChild(Loading);
   Loading.opacity = 0;
+
   scene.addEventListener("enterframe",function(){
     scene.removeChild(Black);
-    if(Loading.tl.queue.length) return;
-    if(Loading.opacity) Loading.tl.fadeOut(20);
-    else Loading.tl.fadeIn(20);
+    Loading.opacity = 0.5 + Math.sin(game.frame * 0.15) * 0.3;
   });
   return scene;
 };
@@ -137,7 +117,7 @@ function CSS(a,b,c,d){
       for(var J = 1; J < c; J++) css[css.length] = [- J + "px  " + K + "px 0 " + a];
       for(var J = 1; J < c; J++) css[css.length] = [  J + "px -" + K + "px 0 " + a];
       for(var J = 1; J < c; J++) css[css.length] = [- J + "px -" + K + "px 0 " + a];
-    };  
+    };
   };
   if(b){
     for(var K = 1; K < d; K++){
@@ -151,7 +131,7 @@ function CSS(a,b,c,d){
 };
 
 function Move_Scale_XY(XY,S,WH){
-  WH /= 2; 
+  WH /= 2;
   return(XY - (WH - WH * S));
 };
 
@@ -482,7 +462,7 @@ function Create_Keys(){
     case "ワープ":
     case "メニュー":
     case "メニュー会話":
-      break;      
+      break;
   };
   if(Pad_L){
     White.y = width/16*9;
@@ -520,7 +500,7 @@ window.addEventListener("keydown",function(e){
   };
   if(e.code=="KeyP"){
     game.popScene();
-    console.log("popScene");    
+    console.log("popScene");
   };
   if(e.code=="KeyF") console.log(Flags);
   if(e.code=="KeyJ"){

@@ -1,15 +1,25 @@
 var Monitoring_Scene = function(){
   var scene = Play_Scene_Set("監視");
   if(!New_Scene) return scene;
-  
+
   var Movie = false;
-  var B_Size = width/5;  
-  
+  var B_Size = width/5;
+
+  var BGMs = 3;
+
   var BGM2 = document.createElement("audio");
-  BGM2.src = "https://raw.githubusercontent.com/compromise-satisfaction/Saved/master/音/BGM/VS 天上院明日香.wav";
-  BGM2.volume = 0.1;
+  BGM2.N = 1;
+  BGM2.src = "1.m4a";
   scene.removeChild(Black);
-  
+
+  BGM2.addEventListener("ended",function(e){
+    if(BGM2.N==BGMs) BGM2.N = 0;
+    BGM2.N++;
+    BGM2.src = BGM2.N + ".m4a";
+    BGM2.currentTime = 0;
+    BGM2.play();
+  });
+
   var B_Black = Create_Image(0,0,width,height,"https://raw.githubusercontent.com/compromise-satisfaction/Saved/master/画像/背景/半透明(黒).png");
   var Kokuban = Create_Image(0,0,width,height,"https://2.bp.blogspot.com/-Cmvu1wHYjQk/UOFKCAktHsI/AAAAAAAAKDs/29TPBCRpLv4/s1600/bunbougu_kokuban.png");
   var S_B = Create_Button(0,0,B_Size,B_Size,"開始",B_Size/2);
@@ -23,18 +33,18 @@ var Monitoring_Scene = function(){
   Text_Area._element.type = "textarea";
   Text_Area._element.placeholder = "テキスト";
   Text_Area._element.style.fontSize = width/20;
-  
+
   var URL = "https://script.google.com/macros/s/AKfycbwi6ekqJT9R4EB4hcX5bJ-UwZ_1SMYVVwRCsA6VAZxhVGmx--cV/exec";
   var Options = {
     method: "post",
     body:JSON.stringify({タイプ:"スプレッドシート",ID:"1pwVkckXJIevaj2M3bQ7_uwOr_WBep2UDs2K89IdXWqE",名前:"データ"})
   };
-  
+
   function Values_Set(Datas){
     for(var I = 0; I < Datas.length; I++) Datas[I] = JSON.parse(Datas[I].データ);
     return(Datas);
   };
-    
+
   S_B._element.onclick = function(e){
     TIME = 60;
     TTT = TIME;
@@ -48,7 +58,7 @@ var Monitoring_Scene = function(){
     scene.removeChild(Text_Area);
     BGM2.play();
     for(var I = 0; I < Z_TEXT.length; I++) scene.addChild(Z_TEXT[I]);
-    if(Text_Area._element.value.match(/^\d+$/)) TIME = Text_Area._element.value*1;
+    if(Text_Area._element.value.match(/^\d+$/)) TIME = Text_Area._element.value * 1;
     return;
   };
 
@@ -59,9 +69,16 @@ var Monitoring_Scene = function(){
       window.localStorage.setItem("カードデータ",JSON.stringify(Card_Datas));
       delete result;
       game.popScene();
-      Text_Area._element.value = Card_Datas.length + "枚";
-      for(var I = 0; I < Card_Datas.length; I++) Text_Area._element.value += "\n《" + Card_Datas[I].カード名 + "》";
-      
+
+      Temp = 0;
+      Text_Area._element.value = "";
+      for(var I = 0; I < Card_Datas.length; I++){
+        if(I) if(Card_Datas[I].カード名==Card_Datas[I-1].カード名) continue;
+        Temp++;
+        Text_Area._element.value += "\n《" + Card_Datas[I].カード名 + "》";
+      };
+      Text_Area._element.value = Temp + "枚" + Text_Area._element.value;
+
       for(var I = 0; I < Card_Datas.length; I++){
         TEXT_LLL.数 = 0;
         for(var J = 0; J < Card_Datas[I].変更内容.length; J++){
@@ -73,7 +90,7 @@ var Monitoring_Scene = function(){
     });
     return;
   };
-  
+
   T_B._element.onclick = function(e){
     if(Text_Area.表示){
       Text_Area.表示 = false;
@@ -85,16 +102,21 @@ var Monitoring_Scene = function(){
     };
     return;
   };
-  
+
   Card_Datas = window.localStorage.getItem("カードデータ");
   if(!Card_Datas) Card_Datas = "{}";
-  
+
   if(Card_Datas.length>2){
+    Temp = 0;
     Card_Datas = JSON.parse(Card_Datas);
-    Text_Area._element.value = Card_Datas.length + "枚";
-    for(var I = 0; I < Card_Datas.length; I++) Text_Area._element.value += "\n《" + Card_Datas[I].カード名 + "》";
+    for(var I = 0; I < Card_Datas.length; I++){
+      if(I) if(Card_Datas[I].カード名==Card_Datas[I-1].カード名) continue;
+      Temp++;
+      Text_Area._element.value += "\n《" + Card_Datas[I].カード名 + "》";
+    };
+    Text_Area._element.value = Temp + "枚" + Text_Area._element.value;
   };
-  
+
   var Z_TEXT = [];
   function Text(x,y,f){
     var Text = new Sprite();
@@ -105,7 +127,7 @@ var Monitoring_Scene = function(){
     Z_TEXT.push(Text);
     return(Text);
   };
-  
+
   var Font = "serif";
   //Font = "df隷書体";
 
@@ -127,7 +149,7 @@ var Monitoring_Scene = function(){
   Y.変更箇所 = height/25*10;
   Y.変更内容 = height/25*12;
   Y.変更内容表示 = Y.変更内容;
-  
+
   var RUBI = Text(X.ルビ,Y.ルビ,PX.ルビ);
   var NAME = Text(X.カード名,Y.カード名,PX.カード名);
   var ZENKAI = Text(X.変更内容,Y.前回収録,PX.ルビ*0.8);
@@ -135,7 +157,7 @@ var Monitoring_Scene = function(){
   var ZENKAIHI = Text(X.変更内容,Y.前回収録+PX.ルビ*2.4,PX.ルビ*0.8);
   var HENKOU = Text(X.変更内容,Y.変更箇所,PX.変更箇所);
   var TEXT_TEXT = [];
-  
+
   var TEXT_LLL = {最大:0};
   for(var I = 0; I < Card_Datas.length; I++){
     if(Card_Datas.length==2) break;
@@ -145,9 +167,9 @@ var Monitoring_Scene = function(){
     };
     if(TEXT_LLL.最大 < TEXT_LLL.数) TEXT_LLL.最大 = TEXT_LLL.数;
   };
-  
+
   for(var I = 0; I < TEXT_LLL.最大; I++) TEXT_TEXT.push(Text(0,0,PX.変更内容));
-  
+
   var Target_Text = null;
   var Before_Text = null;
   var B_Before_Text = null;
@@ -200,7 +222,7 @@ var Monitoring_Scene = function(){
     Before_Text = Target_Text;
     return;
   };
-  
+
   var TIME = 60;
   var SSS = 0;
   var TTT = 0;
@@ -211,12 +233,12 @@ var Monitoring_Scene = function(){
   var Display_Text1 = [];
   var Display_Text2 = [];
   var TEXT_J = 0;
-  
+
   var LINE_Texts = [];
   var Start_Time = null;
-  
+
   var Send_Text = "※公式カードデータベース(50音順)の内容です。\n実物のカードとは改行などが異なる場合があります。";
-  
+
   function Move(){
     if(!C_S&&!SSS) Start_Time = new Date();
     var Datas = Card_Datas[C_S];
@@ -249,6 +271,8 @@ var Monitoring_Scene = function(){
         Send_Text += " " + LINE_Texts[I].場所;
       };
       console.log(Send_Text);
+      BGM2.pause();
+      BGM2.currentTime = 0;
       Text_Area._element.value = Send_Text;
       for(var I = 0; I < Z_TEXT.length; I++) scene.removeChild(Z_TEXT[I]);
       scene.addChild(B_Black);
@@ -256,6 +280,7 @@ var Monitoring_Scene = function(){
       scene.addChild(S_B);
       scene.addChild(A_B);
       scene.addChild(T_B);
+      navigator.clipboard.writeText(Send_Text);
       return;
     };
     Change_P = Card_Datas[C_S].変更箇所;
@@ -269,7 +294,7 @@ var Monitoring_Scene = function(){
         ZENKAI_P._element.textContent = Datas.前回収録.名前;
         ZENKAIHI._element.textContent = "前回の収録から" + Datas.前回収録.日数;
         HENKOU._element.textContent = "旧" + Datas.変更箇所;
-        
+
         Values = [];
         J_J = {削除:0,追加:0,改行削除:0,改行追加:0};
 
@@ -299,17 +324,17 @@ var Monitoring_Scene = function(){
               break;
           };
         };
-        
+
         TEXT_J = 0;
         Display_Text1 = [];
         X.変更内容表示 = X.変更内容;
         Y.変更内容表示 = Y.変更内容;
-        
+
         for(var I = 0; I < TEXT_TEXT.length; I++){
           TEXT_TEXT[I]._element.textContent = "";
           TEXT_TEXT[I]._style.background = "transparent";
         };
-        
+
         for(var I = 0; I < Values.length; I++){
           if(Values[I][0]!="加"){
             if(Values[I][1] == "\n"){
@@ -328,16 +353,16 @@ var Monitoring_Scene = function(){
             Reset();
           };
         };
-        
+
         if(J_J.改行削除) J_J.削除 -= J_J.改行削除;
         HENKOU._element.textContent = "旧" + Datas.変更箇所 + " 削除文字数:" + J_J.削除;
         if(J_J.改行削除) HENKOU._element.textContent += " 削除改行数:" + J_J.改行削除;
-        
+
         for(var I = 0; I < Display_Text1.length; I++){
           Display_Text1[I].moveTo(Display_Text1[I].X,Display_Text1[I].Y);
           Display_Text1[I].tl.fadeIn(TIME);
         };
-        
+
         RUBI.tl.fadeIn(TIME);
         NAME.tl.fadeIn(TIME);
         ZENKAI.tl.fadeIn(TIME);
@@ -345,7 +370,7 @@ var Monitoring_Scene = function(){
         ZENKAIHI.tl.fadeIn(TIME);
         HENKOU.tl.fadeIn(TIME);
         TTT = TIME;
-        
+
         break;
       case 1:
         HENKOU.tl.fadeOut(TIME);
@@ -419,12 +444,12 @@ var Monitoring_Scene = function(){
     SSS++;
     return;
   };
-  
+
   scene.addEventListener("touchstart",function(e){
      TIME = 6;
      return;
   });
-  
+
   scene.addEventListener("enterframe",function(e){
     if(!Movie) return;
     //if(Display_Text1[0]) if(Display_Text1[0].tl.queue.length) return;
@@ -454,6 +479,6 @@ var Monitoring_Scene = function(){
     Size_change(width,height);
     return;
   });
-  
+
   return scene;
 };
