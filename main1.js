@@ -11,7 +11,7 @@ var Monitoring_Scene = function(){
   scene.removeChild(Black);
   BGM2.N = window.localStorage.getItem("曲");
   window.localStorage.setItem("曲",BGM2.N+1);
-  if(!BGM2.N) BGM2.N = 1;
+  if(!BGM2.N||BGM2.N>BGMs) BGM2.N = 1;
   BGM2.src = BGM2.N + ".m4a";
 
   BGM2.addEventListener("ended",function(e){
