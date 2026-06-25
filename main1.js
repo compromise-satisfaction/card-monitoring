@@ -1,3 +1,201 @@
+enchant();
+
+function Game_load(width,height){
+  game = new Game(width,height);
+  game.fps = 60;
+  game.onload = function(){
+    Play_Scene_Change(Monitoring_Scene);
+    return;
+  };
+  game.start();
+};
+
+var Buttons = [];
+var Key_s = {};
+function Create_Button(X,Y,W,H,V,VV,Key){
+  var I = Buttons.length;
+  Buttons[I] = new Button(V,"light",W,H);
+  Buttons[I].moveTo(X,Y);
+  Buttons[I].width = W;
+  Buttons[I].height = H;
+  Buttons[I]._element = document.createElement("input");
+  Buttons[I]._element.type = "submit";
+  Buttons[I]._element.value = V;
+  Buttons[I]._element.Number = I;
+  Buttons[I].backgroundColor = "buttonface";
+  Buttons[I]._style["font-size"] = VV;
+  Buttons[I].初期 = {X:X,Y:Y,Y:Y,W:W,H:H};
+  if(Key) Key_s["Key"+Key] = Buttons[I];
+  Play_Scene.addChild(Buttons[I]);
+  All_Object.push(Buttons[I]);
+  return(Buttons[I]);
+};
+
+var BGM = null;
+function Create_BGM(C,D){
+  if(!D) D = {};
+  var BGM = document.createElement("audio");//サウンド
+  BGM.src = C;
+  if(D.L) BGM.ループ = D.L;
+  if(D.V) BGM.volume = D.V;
+  BGM.addEventListener("ended",function(e){
+    if(!BGM.ループ) BGM.ループ = 0;
+    BGM.currentTime = BGM.ループ;
+    BGM.play();
+  });
+  return(BGM);
+};
+
+var SEs = {};
+function Create_SE(C,N,V){
+  if(!V) V = 0.1;
+  if(N){
+    if(SEs[N]){
+      console.log(N);
+      return(SEs[N]);
+    };
+    SEs[N] = document.createElement("audio");//サウンド
+    SEs[N].src = C;
+    SEs[N].volume = V;
+    //SEs[N].play();
+    return(SEs[N]);
+  };
+  if(SEs[C]) return(SEs[C]);
+  SEs[C] = document.createElement("audio");//サウンド
+  SEs[C].src = C;
+  SEs[C].volume = V;
+  SEs[C].play();
+  return(SEs[C]);
+};
+
+function Sound_Stop(SE){
+  if(typeof(SE)=="string"){
+    if(SEs[SE]) SE = SEs[SE];
+    else return;
+  };
+  SE.pause();
+  SE.currentTime = 0;
+  return;
+};
+
+function Sound_Play(SE,V){
+  if(!V) V = 0.2;
+  if(typeof(SE)=="string"){
+    if(SEs[SE]) SE = SEs[SE];
+    else{
+      SE = Create_SE(SE,false,V);
+      return;
+    };
+  };
+  SE.currentTime = 0;
+  SE.volume = V;
+  SE.play();
+  return;
+};
+
+var All_Object = [];
+
+var Images = [];
+var Back = new Entity();
+Back._element = document.createElement("img");
+Back._element.src = G_D + "novel_game/gh-pages/画像/透明.png";
+
+var Black = new Entity();
+Black._element = document.createElement("img");
+Black._element.src = G_D + "novel_game/gh-pages/画像/黒.png";
+
+var White = new Entity();
+White._element = document.createElement("img");
+White._element.src = G_D + "novel_game/gh-pages/画像/白.png";
+
+function Create_Image(X,Y,W,H,C){
+  var I = Images.length;
+  Images[I] = new Entity();
+  Images[I].moveTo(X,Y);
+  Images[I].width = W;
+  Images[I].height = H;
+  Images[I]._element = document.createElement("img");
+  Images[I]._element.src = C;
+  Images[I].初期 = {X:X,Y:Y,Y:Y,W:W,H:H};
+  Play_Scene.addChild(Images[I]);
+  All_Object.push(Images[I]);
+  return(Images[I]);
+};
+
+var New_scene = false;
+var Play_scenes = {前:[]};
+var How_Scene = null;
+
+var Loading_Scene = function(){
+  var scene = Play_Scene_Set("ローディング画面");
+  if(!New_Scene) return scene;
+  var Background = new Entity();
+
+  Background._element = document.createElement("img");
+  Background._element.src = "https://raw.githubusercontent.com/compromise-satisfaction/novel_game/gh-pages/画像/半透明(黒).png";
+  Background.width = width;
+  Background.height = height;
+  var Loading = new Label();
+  Loading.text = "読み込み中";
+  Loading.y = (height - width/Loading.text.length) / 2;
+  Loading.font = width/Loading.text.length + "px 'Arial'";
+  Loading.width = width;
+  Loading._style.color = "#7f7fff";
+  scene.addChild(Background);
+  scene.addChild(Loading);
+  Loading.opacity = 0;
+
+  scene.addEventListener("enterframe",function(){
+    scene.removeChild(Black);
+    Loading.opacity = 0.5 + Math.sin(game.frame * 0.15) * 0.3;
+  });
+  return scene;
+};
+
+function Play_Scene_Set(Name){
+  New_Scene = false;
+  switch(How_Scene){
+    case "push":
+      Play_scenes.前.push(Play_scenes.今);
+      break;
+  };
+  if(Play_scenes[Name]){
+    Play_Scene = Play_scenes[Name];
+    Play_scenes.今 = Name;
+  }
+  else{
+    New_Scene = true;
+    Play_Scene = new Scene();
+    Play_scenes[Name] = Play_Scene;
+    Play_scenes.今 = Name;
+  };
+  return(Play_Scene);
+};
+
+function Play_Scene_Change(Scene,e){
+  if(!Scene) e = "pop";
+  if(e) How_Scene = e;
+  else How_Scene = "replace";
+  switch(How_Scene){
+    case "replace":
+      game.replaceScene(Scene());
+      break;
+    case "pop":
+      game.popScene();
+      Play_scenes.今 = Play_scenes.前[Play_scenes.前.length-1];
+      Play_Scene = Play_scenes[Play_scenes.今];
+      Play_scenes.前.pop();
+      Create_Keys();
+      break;
+    default:
+      How_Scene = "push";
+      game.pushScene(Scene(e));
+      break;
+  };
+  Size_change(width,height);
+  return;
+};
+
 var Monitoring_Scene = function(){
   var scene = Play_Scene_Set("監視");
   if(!New_Scene) return scene;
@@ -5,10 +203,9 @@ var Monitoring_Scene = function(){
   var Movie = false;
   var B_Size = width/5;
 
-  var BGMs = 3;
+  var BGMs = 5;
 
   var BGM2 = document.createElement("audio");
-  scene.removeChild(Black);
   BGM2.N = window.localStorage.getItem("曲");
   window.localStorage.setItem("曲",BGM2.N+1);
   if(!BGM2.N||BGM2.N>BGMs) BGM2.N = 1;
@@ -110,7 +307,7 @@ var Monitoring_Scene = function(){
   Card_Datas = window.localStorage.getItem("カードデータ");
   if(!Card_Datas) Card_Datas = "{}";
 
-  if(Card_Datas.length>2){
+  if(Card_Datas != "{}"){
     Temp = 0;
     Card_Datas = JSON.parse(Card_Datas);
     for(var I = 0; I < Card_Datas.length; I++){
@@ -164,7 +361,7 @@ var Monitoring_Scene = function(){
 
   var TEXT_LLL = {最大:0};
   for(var I = 0; I < Card_Datas.length; I++){
-    if(Card_Datas.length==2) break;
+    if(Card_Datas == "{}") break;
     TEXT_LLL.数 = 0;
     for(var J = 0; J < Card_Datas[I].変更内容.length; J++){
       TEXT_LLL.数 += Card_Datas[I].変更内容[J][1].length;
