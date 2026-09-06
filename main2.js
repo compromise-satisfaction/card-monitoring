@@ -8,7 +8,7 @@ function Game_load(width,height){
     var Start_Scene = function(){
       var Scenes = new Scene();
 
-      var B = 5;
+      var B = 6;
       var BGMs = [];
       var Buttons = [];
 
